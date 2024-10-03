@@ -1,0 +1,62 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #302ae6;
+  --secondary-color: #536390;
+  --font-color: #424242;
+  --bg-color: #e2e2e2;
+  --heading-color: #292922;
+}
+
+[data-theme="dark"] {
+    --primary-color: #9A97F3;
+    --secondary-color: #818cab;
+    --font-color: #e1e1ff;
+    --bg-color: #161625;
+    --heading-color: #818cab;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background-color: var(--bg-color);
+  color: var(--font-color);
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1.5fr 0.5fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-auto-flow: row;
+  height: 100%;
+}
+
+.container > * {
+    border: 1px solid red;
+}
+
+.todays-info {
+    grid-area: 2 / 2 / 12 / 8;
+}
+
+.more-info {
+  grid-area: 2 / 9 / 12 / 12;
+}
+
+.week-forecast {
+  grid-area: 13 / 2 / 18 / 12;
+}
+
+.color-theme {
+  grid-area: 1 / 12 / 2 / 13;
+}
+
+.settings {
+  grid-area: 1 / 1 / 2 / 2;
+}
