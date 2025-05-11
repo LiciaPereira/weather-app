@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getFiveDayForecast } from "../services/weatherService";
 
 export default function FutureForecast({ city, selectedUnit = "metric" }) {
   const [forecastDays, setForecastDays] = useState([]);
@@ -42,15 +43,8 @@ export default function FutureForecast({ city, selectedUnit = "metric" }) {
 
       setLoading(true);
       setError(null);
-
       try {
-        const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=${selectedUnit}&appid=${process.env.REACT_APP_API_KEY}`;
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.cod !== "200") {
-          throw new Error(data.message || "Failed to fetch forecast data");
-        }
+        const data = await getFiveDayForecast(city, selectedUnit);
 
         // Group the forecast data by day
         const dailyData = data.list.reduce((acc, item) => {

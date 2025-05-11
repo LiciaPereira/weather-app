@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getCurrentWeather } from "../services/weatherService";
 
 export default function useWeatherAPI(city, unit = "metric") {
   const [temperature, setTemperature] = useState("");
@@ -18,23 +19,15 @@ export default function useWeatherAPI(city, unit = "metric") {
       setError(null);
 
       try {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=${unit}&appid=${process.env.REACT_APP_API_KEY}`;
-        const response = await fetch(url);
-        const result = await response.json();
-        console.log("Weather API result:", result);
-
-        if (result.cod !== 200) {
-          throw new Error(result.message || "Failed to fetch weather data");
-        }
-
+        const result = await getCurrentWeather(city, unit);
         setTemperature(parseInt(result.main.temp));
         setWeathericon(
           `http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png`
         );
         setFeelsLike(parseInt(result.main.feels_like));
         setHumidity(result.main.humidity);
-        setWindSpeed(result.wind.speed);
-        setWeatherCondition(result.weather[0].description);
+        setWindSpeed(result.wind.speed); // Get both the main condition and description for more accurate background matching
+        setWeatherCondition(result.weather[0].main.toLowerCase());
       } catch (error) {
         console.error("Weather API Error:", error);
         setError("Failed to fetch weather data. Please try again.");

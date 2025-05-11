@@ -15,3 +15,12 @@ export const addToSearchHistory = (city) => {
   localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(newHistory));
   return newHistory;
 };
+
+export const removeFromSearchHistory = (cityToRemove) => {
+  const history = getSearchHistory();
+  const newHistory = history.filter(
+    (city) => city.toLowerCase() !== cityToRemove.toLowerCase()
+  );
+  localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(newHistory));
+  return newHistory;
+};

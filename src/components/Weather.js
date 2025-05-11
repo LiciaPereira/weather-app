@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import useWeatherAPI from "../hooks/WeatherAPI";
 import getBackgroundMedia from "../utils/weatherBackground";
-import { getSearchHistory, addToSearchHistory } from "../utils/localStorage";
+import { getLocationByCoords } from "../services/weatherService";
+import {
+  getSearchHistory,
+  addToSearchHistory,
+  removeFromSearchHistory,
+} from "../utils/localStorage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHistory } from "@fortawesome/free-solid-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import SearchBar from "./SearchBar";
 import "../style/weather.scss";
 import ColorTheme, { getCurrentTheme } from "./ColorTheme";
@@ -15,6 +20,7 @@ export default function Weather() {
   const [isDarkMode, setIsDarkMode] = useState(getCurrentTheme() === "dark");
   const [searchHistory, setSearchHistory] = useState([]);
   const [selectedUnit, setSelectedUnit] = useState("metric");
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const getUnitSymbol = () => {
     switch (selectedUnit) {
@@ -26,9 +32,8 @@ export default function Weather() {
         return "°C";
     }
   };
-
   const [backgroundMedia, setBackgroundMedia] = useState({
-    backgroundVideo: require("../assets/images/blue-sky.mp4"),
+    backgroundVideo: "/videos/clear-sky.mp4",
     altText: "Time lapse of a clear blue sky with white clouds",
   });
 
@@ -52,11 +57,56 @@ export default function Weather() {
   }, []);
 
   useEffect(() => {
+    // Get user's location only on initial load
+    const getUserLocation = async () => {
+      if (!isInitialLoad) return;
+      setIsInitialLoad(false);
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              const { latitude, longitude } = position.coords;
+              const locationData = await getLocationByCoords(
+                latitude,
+                longitude
+              );
+
+              if (locationData?.name) {
+                setCity(locationData.name);
+                // Add to search history
+                const newHistory = addToSearchHistory(locationData.name);
+                setSearchHistory(newHistory);
+              }
+            } catch (error) {
+              console.error("Error getting location:", error);
+              // Fallback to default city if there's an error
+              setCity("Jundiai");
+            }
+          },
+          (error) => {
+            console.error("Geolocation error:", error);
+            // Fallback to default city if user denies location access
+            setCity("Jundiai");
+          }
+        );
+      } else {
+        console.log("Geolocation is not supported");
+        setCity("Jundiai");
+      }
+    };
+
+    getUserLocation();
+  }, [isInitialLoad]); // Only check on initial load
+
+  useEffect(() => {
+    // Update background when weather condition changes
     if (weatherCondition) {
+      console.log("Weather condition changed to:", weatherCondition);
       const { backgroundVideo, altText } = getBackgroundMedia(weatherCondition);
       setBackgroundMedia({ backgroundVideo, altText });
     }
-  }, [weatherCondition]);
+  }, [weatherCondition]); // Only depend on weatherCondition
 
   const handleSearch = (e) => {
     e?.preventDefault();
@@ -71,6 +121,12 @@ export default function Weather() {
   const handleHistoryClick = (historyCity) => {
     setCity(historyCity);
     const newHistory = addToSearchHistory(historyCity);
+    setSearchHistory(newHistory);
+  };
+
+  const handleDeleteFromHistory = (e, cityToDelete) => {
+    e.stopPropagation(); // Prevent triggering the history item click
+    const newHistory = removeFromSearchHistory(cityToDelete);
     setSearchHistory(newHistory);
   };
 
@@ -89,6 +145,7 @@ export default function Weather() {
   return (
     <main className={`container ${isDarkMode ? "dark-mode" : ""}`} role="main">
       <video
+        key={backgroundMedia.backgroundVideo} // Add key to force video reload
         className="background-video"
         autoPlay
         loop
@@ -185,7 +242,13 @@ export default function Weather() {
                   aria-label={`Search for ${historyCity}`}
                 >
                   <span className="history-city">{historyCity}</span>
-                  <FontAwesomeIcon icon={faHistory} className="history-icon" />
+                  <button
+                    className="delete-history"
+                    onClick={(e) => handleDeleteFromHistory(e, historyCity)}
+                    aria-label={`Remove ${historyCity} from history`}
+                  >
+                    <FontAwesomeIcon icon={faXmark} />
+                  </button>
                 </button>
               ))}
             </div>
