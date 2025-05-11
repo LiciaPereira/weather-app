@@ -17,11 +17,10 @@
   --heading-color: #2c3e50;
   --search-bg: rgba(255, 255, 255, 0.3);
   --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
   // Layout
   --border-radius: 16px;
   --spacing-unit: clamp(0.5rem, 2vw, 1rem);
-  --container-padding: clamp(1rem, 4vw, 2rem);
+  --container-padding: clamp(1.25rem, 5vw, 2.5rem);
 
   // Typography
   --font-size-xs: clamp(0.75rem, 1.5vw, 0.875rem);
@@ -71,6 +70,11 @@ body {
   overflow-x: hidden;
   backdrop-filter: blur(10px);
 
+  @media (max-width: 480px) {
+    padding: calc(var(--container-padding) * 0.8)
+      calc(var(--container-padding) * 0.6);
+  }
+
   @media (max-width: 1024px) {
     grid-template-columns: repeat(6, 1fr);
     gap: var(--spacing-unit);
@@ -95,7 +99,7 @@ body {
 .container > section {
   background-color: var(--secondary-bg-color);
   border-radius: var(--border-radius);
-  padding: var(--spacing-unit);
+  padding: calc(var(--spacing-unit) * 2);
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(8px);
   transition: transform 0.3s ease;
@@ -120,6 +124,9 @@ body {
     grid-row: 2;
   }
 
+  @media (max-width: 700px) {
+    margin-top: 1rem;
+  }
   .information {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -131,14 +138,14 @@ body {
     }
 
     @media (max-width: 480px) {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 }
 
 .weather-app-name {
   font-size: var(--font-size-xl);
-  font-weight: 300;
+  font-weight: 400;
   margin-bottom: var(--spacing-unit);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -151,6 +158,10 @@ body {
   padding: var(--spacing-unit);
   border-radius: var(--border-radius);
   background: var(--secondary-bg-color);
+
+  @media (max-width: 480px) {
+    padding: calc(var(--spacing-unit) * 0.75);
+  }
 }
 
 .cur-temperature {
@@ -158,6 +169,10 @@ body {
   font-weight: 300;
   line-height: 1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 480px) {
+    font-size: calc(var(--font-size-3xl) * 0.85);
+  }
 }
 
 .divider {
@@ -170,6 +185,14 @@ body {
   font-size: var(--font-size-2xl);
   font-weight: 300;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 480px) {
+    font-size: calc(var(--font-size-2xl) * 0.85);
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .cur-icon {
@@ -213,8 +236,8 @@ body {
 
   @media (max-width: 1024px) {
     position: absolute;
-    top: calc(var(--spacing-unit) * 6);
-    right: calc(var(--spacing-unit) * 3);
+    top: calc(var(--spacing-unit) * 1);
+    left: calc(var(--spacing-unit) * 2.5);
     width: auto;
     min-width: 300px;
     margin: 0;
@@ -222,14 +245,10 @@ body {
     .search-bar {
       background: var(--bg-color);
       backdrop-filter: blur(8px);
-      max-width: calc(var(--spacing-unit) * 18);
-      right: 0;
+      max-width: calc(var(--spacing-unit) * 25);
+      right: auto;
       position: absolute;
     }
-  }
-
-  @media (max-width: 480px) {
-    min-width: calc(100% - (var(--spacing-unit) * 2));
   }
 
   .search-bar {
@@ -484,7 +503,7 @@ body {
   }
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -497,6 +516,7 @@ body {
   background: var(--bg-color);
   border-radius: calc(var(--border-radius) / 2);
   transition: transform 0.2s ease;
+  justify-content: space-evenly;
 
   &:hover {
     transform: translateY(-2px);
@@ -530,7 +550,7 @@ body {
   .forecast-title {
     font-size: var(--font-size-xl);
     margin-bottom: calc(var(--spacing-unit) * 2);
-    font-weight: 500;
+    font-weight: 400;
     color: var(--heading-color);
   }
 }
@@ -567,7 +587,6 @@ body {
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-unit);
 
   &:hover {
     transform: translateY(-4px);
@@ -583,6 +602,11 @@ body {
   margin-bottom: var(--spacing-unit);
   padding-bottom: var(--spacing-unit);
   border-bottom: 1px solid var(--secondary-bg-color);
+
+  @media (max-width: 480px) {
+    margin-bottom: calc(var(--spacing-unit) * 0.5);
+    padding-bottom: calc(var(--spacing-unit) * 0.5);
+  }
 
   .day-info {
     flex: 1;
@@ -602,7 +626,7 @@ body {
   }
 
   .weather-icon {
-    font-size: var(--font-size-xl);
+    max-width: 4rem;
     margin-left: var(--spacing-unit);
   }
 }
@@ -610,7 +634,9 @@ body {
 .day-content {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--spacing-unit) * 1.5);
+
+  @media (max-width: 480px) {
+  }
 }
 
 .temperature-range {
@@ -713,6 +739,12 @@ body {
   align-items: center;
   gap: var(--spacing-unit);
   z-index: 100;
+
+  @media (max-width: 480px) {
+    top: 0.5rem;
+    right: 0.5rem;
+    gap: calc(var(--spacing-unit) * 0.5);
+  }
   .unit-selector {
     .unit-select {
       appearance: none;

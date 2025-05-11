@@ -96,9 +96,9 @@ export default function FutureForecast({ city, selectedUnit = "metric" }) {
 
   return (
     <section className="week-forecast" aria-labelledby="forecast-title">
-      <h2 id="forecast-title" className="forecast-title">
+      <h3 id="forecast-title" className="forecast-title">
         5-Day Forecast
-      </h2>
+      </h3>
       <div className="days">
         {forecastDays.map((day, index) => {
           const forecast = forecastData?.[index];
