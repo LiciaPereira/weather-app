@@ -9,7 +9,7 @@
 
 :root {
   // Light theme colors
-  --primary-color: #302ae6;
+  --primary-color: #002fff;
   --secondary-color: #536390;
   --font-color: #2c3e50;
   --bg-color: rgba(255, 255, 255, 0.85);
@@ -99,6 +99,7 @@ body {
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(8px);
   transition: transform 0.3s ease;
+  z-index: 1;
 
   &:hover {
     transform: translateY(-2px);
@@ -111,9 +112,12 @@ body {
   display: flex;
   flex-direction: column;
   gap: calc(var(--spacing-unit) * 2);
+  position: relative; // Added to make it a positioning context
+  z-index: -1;
 
   @media (max-width: 1024px) {
     grid-column: 1 / -1;
+    grid-row: 2;
   }
 
   .information {
@@ -184,11 +188,21 @@ body {
   grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: calc(var(--spacing-unit) * 2);
-
+  gap: 1rem;
   @media (max-width: 1024px) {
     grid-column: 1 / -1;
-    grid-row: 3;
+    grid-row: 1;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+
+    .search-history-list {
+      display: none; // Hide search history on mobile
+    }
+
+    &:hover {
+      transform: none !important;
+    }
   }
 }
 
@@ -196,6 +210,27 @@ body {
   position: relative;
   width: 100%;
   margin-bottom: var(--spacing-unit);
+
+  @media (max-width: 1024px) {
+    position: absolute;
+    top: calc(var(--spacing-unit) * 6);
+    right: calc(var(--spacing-unit) * 3);
+    width: auto;
+    min-width: 300px;
+    margin: 0;
+
+    .search-bar {
+      background: var(--bg-color);
+      backdrop-filter: blur(8px);
+      max-width: calc(var(--spacing-unit) * 18);
+      right: 0;
+      position: absolute;
+    }
+  }
+
+  @media (max-width: 480px) {
+    min-width: calc(100% - (var(--spacing-unit) * 2));
+  }
 
   .search-bar {
     display: flex;
@@ -301,17 +336,9 @@ body {
 }
 
 .search-history-list {
-  background: var(--secondary-bg-color);
   border-radius: var(--border-radius);
   padding: calc(var(--spacing-unit) * 1.5);
   backdrop-filter: blur(8px);
-
-  .history-title {
-    font-size: var(--font-size-lg);
-    font-weight: 500;
-    margin-bottom: var(--spacing-unit);
-    color: var(--font-color);
-  }
 }
 
 .history-grid {
@@ -625,10 +652,6 @@ body {
 }
 
 .color-theme {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -659,6 +682,65 @@ body {
 
   @media (max-width: 1024px) {
     grid-column: 1 / 2;
+  }
+}
+
+.settings-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-unit);
+  z-index: 100;
+
+  .unit-selector {
+    .unit-select {
+      appearance: none;
+      background: var(--secondary-bg-color);
+      border: none;
+      color: var(--font-color);
+      padding: 0.5rem;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-size: var(--font-size-base);
+      backdrop-filter: blur(8px);
+      box-shadow: var(--card-shadow);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--bg-color);
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--primary-color);
+      }
+
+      option {
+        background: var(--bg-color);
+        color: var(--font-color);
+      }
+    }
+  }
+
+  .color-theme button {
+    background: var(--secondary-bg-color);
+    border: none;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: var(--bg-color);
+    }
+
+    span {
+      font-size: var(--font-size-base);
+    }
   }
 }
 
@@ -724,7 +806,7 @@ body {
   }
 
   .more-info-info {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
 
     label {
@@ -750,7 +832,7 @@ body {
   }
 
   .prediction {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }

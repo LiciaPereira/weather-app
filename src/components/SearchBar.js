@@ -1,14 +1,33 @@
 import React from "react";
-import WeatherAPI from "../hooks/WeatherAPI";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
-export default function SearchBar() {
-    
-    return (
-        <div className="search-bar">
-            <input placeholder="Search city..." type='search' onChange={(e) => {setSearchText(e.target.value)}}></input>
-            <button onClick={() => {WeatherAPI(searchText)}}><FontAwesomeIcon icon={faMagnifyingGlass} /></button>
-        </div>
-    )
+export default function SearchBar({
+  searchedText,
+  setSearchedText,
+  handleSearch,
+  handleKeyPress,
+}) {
+  return (
+    <form
+      className="search-bar"
+      onSubmit={handleSearch}
+      role="search"
+      aria-label="City Search"
+    >
+      <div className="search-input-wrapper">
+        <input
+          type="search"
+          placeholder="Search city..."
+          value={searchedText}
+          onChange={(e) => setSearchedText(e.target.value)}
+          onKeyPress={handleKeyPress}
+          aria-label="Search for a city"
+        />
+      </div>
+      <button type="submit" aria-label="Search" className="search-button">
+        <FontAwesomeIcon icon={faMagnifyingGlass} />
+      </button>
+    </form>
+  );
 }

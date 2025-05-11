@@ -3,20 +3,29 @@ import useWeatherAPI from "../hooks/WeatherAPI";
 import getBackgroundMedia from "../utils/weatherBackground";
 import { getSearchHistory, addToSearchHistory } from "../utils/localStorage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faMagnifyingGlass,
-  faHistory,
-} from "@fortawesome/free-solid-svg-icons";
+import { faHistory } from "@fortawesome/free-solid-svg-icons";
+import SearchBar from "./SearchBar";
 import "../style/weather.scss";
 import ColorTheme, { getCurrentTheme } from "./ColorTheme";
 import FutureForecast from "./FutureForecast.js";
 
 export default function Weather() {
   const [city, setCity] = useState("");
-  const degrees = "C";
   const [searchedText, setSearchedText] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(getCurrentTheme() === "dark");
   const [searchHistory, setSearchHistory] = useState([]);
+  const [selectedUnit, setSelectedUnit] = useState("metric");
+
+  const getUnitSymbol = () => {
+    switch (selectedUnit) {
+      case "imperial":
+        return "°F";
+      case "standard":
+        return "K";
+      default:
+        return "°C";
+    }
+  };
 
   const [backgroundMedia, setBackgroundMedia] = useState({
     backgroundVideo: require("../assets/images/blue-sky.mp4"),
@@ -32,7 +41,7 @@ export default function Weather() {
     weatherCondition,
     isLoading,
     error,
-  } = useWeatherAPI(city);
+  } = useWeatherAPI(city, selectedUnit);
 
   useEffect(() => {
     ColorTheme(isDarkMode);
@@ -85,12 +94,10 @@ export default function Weather() {
         loop
         muted
         aria-hidden="true"
-        title={backgroundMedia.altText}
       >
         <source src={backgroundMedia.backgroundVideo} type="video/mp4" />
         <track kind="captions" />
       </video>
-
       <section className="todays-info" aria-label="Today's Weather">
         <h1 className="weather-app-name">Weather Dashboard</h1>
         {error ? (
@@ -105,7 +112,7 @@ export default function Weather() {
           <>
             <div className="current-city-info">
               <div className="cur-temperature" aria-label="Current Temperature">
-                {temperature ? `${temperature}°${degrees}` : "18°C"}
+                {temperature ? `${temperature}${getUnitSymbol()}` : "18°C"}
               </div>
               <div className="divider" aria-hidden="true">
                 |
@@ -133,7 +140,7 @@ export default function Weather() {
                   className="cur-feelslike"
                   aria-label="Feels like temperature"
                 >
-                  {feelsLike ? `${feelsLike}°${degrees}` : "15°C"}
+                  {feelsLike ? `${feelsLike}${getUnitSymbol()}` : "15°C"}
                 </div>
                 <label id="feelslike-label">Feels Like</label>
               </div>
@@ -153,32 +160,20 @@ export default function Weather() {
           </>
         )}
       </section>
-
-      <section className="more-info" aria-label="Search and History">
+      <section className="more-info" aria-label="Search">
         <div className="search-container">
-          <form
-            className="search-bar"
-            onSubmit={handleSearch}
-            role="search"
-            aria-label="City Search"
-          >
-            <div className="search-input-wrapper">
-              <input
-                type="search"
-                placeholder="Search city..."
-                value={searchedText}
-                onChange={(e) => setSearchedText(e.target.value)}
-                onKeyPress={handleKeyPress}
-                aria-label="Search for a city"
-              />
-            </div>
-            <button type="submit" aria-label="Search" className="search-button">
-              <FontAwesomeIcon icon={faMagnifyingGlass} />
-            </button>
-          </form>
+          <SearchBar
+            searchedText={searchedText}
+            setSearchedText={setSearchedText}
+            handleSearch={handleSearch}
+            handleKeyPress={handleKeyPress}
+            selectedUnit={selectedUnit}
+            setSelectedUnit={setSelectedUnit}
+          />
         </div>
 
-        {searchHistory.length > 0 && (
+        {/* Only show search history on desktop screens */}
+        {window.innerWidth > 1024 && searchHistory.length > 0 && (
           <div className="search-history-list">
             <h2 className="history-title">Recent Searches</h2>
             <div className="history-grid">
@@ -196,28 +191,42 @@ export default function Weather() {
             </div>
           </div>
         )}
-      </section>
-
-      <FutureForecast city={city} />
-
-      <div className="color-theme">
-        <button
-          onClick={toggleTheme}
-          aria-label={
-            isDarkMode ? "Switch to light theme" : "Switch to dark theme"
-          }
-          title={isDarkMode ? "Switch to light theme" : "Switch to dark theme"}
-        >
-          {isDarkMode ? (
-            <span role="img" aria-hidden="true">
-              ☀️
-            </span>
-          ) : (
-            <span role="img" aria-hidden="true">
-              🌙
-            </span>
-          )}
-        </button>
+      </section>{" "}
+      <FutureForecast city={city} selectedUnit={selectedUnit} />
+      <div className="settings-container">
+        <div className="unit-selector">
+          <select
+            value={selectedUnit}
+            onChange={(e) => setSelectedUnit(e.target.value)}
+            className="unit-select"
+            aria-label="Temperature unit"
+          >
+            <option value="metric">°C</option>
+            <option value="imperial">°F</option>
+            <option value="standard">K</option>
+          </select>
+        </div>
+        <div className="color-theme">
+          <button
+            onClick={toggleTheme}
+            aria-label={
+              isDarkMode ? "Switch to light theme" : "Switch to dark theme"
+            }
+            title={
+              isDarkMode ? "Switch to light theme" : "Switch to dark theme"
+            }
+          >
+            {isDarkMode ? (
+              <span role="img" aria-hidden="true">
+                ☀️
+              </span>
+            ) : (
+              <span role="img" aria-hidden="true">
+                🌙
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </main>
   );
