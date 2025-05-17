@@ -2,6 +2,14 @@
 
 A modern, responsive weather dashboard built with React that provides current weather conditions and 5-day forecasts for any city worldwide.
 
+## Technologies Used
+
+- React.js
+- SCSS for styling
+- OpenWeatherMap API
+- Font Awesome Icons
+- Local Storage for data persistence
+
 ## Features
 
 - Real-time weather data from OpenWeatherMap API
@@ -14,14 +22,10 @@ A modern, responsive weather dashboard built with React that provides current we
 - Light/Dark theme support
 - Responsive design for all devices
 - Fallback API key system for reliable service
-
-## Technologies Used
-
-- React.js
-- SCSS for styling
-- OpenWeatherMap API
-- Font Awesome Icons
-- Local Storage for data persistence
+- Improved geolocation support with better error handling and user feedback
+- Added location format display with state/province abbreviations
+- Optimized API usage with coordinate-based searches for better accuracy
+- Enhanced loading states with smart delay (2.5s threshold for spinners)
 
 ## Installation
 
@@ -49,6 +53,16 @@ REACT_APP_API_KEY=your_api_key_here
 ```bash
 npm start
 ```
+
+## Geolocation Features
+
+The app provides smart location-based weather information:
+
+- Automatic location detection on initial load (with user permission)
+- Graceful fallback to default city if location access is denied
+- Informative error messages for various geolocation scenarios
+- Uses coordinates for more accurate weather data when available
+- Saves location data to improve subsequent searches
 
 ## Environment Variables
 

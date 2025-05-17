@@ -48,7 +48,11 @@ export default function FutureForecast({ city, selectedUnit = "metric" }) {
         clearTimeout(loadingTimerRef.current);
       }
 
-      setLoading(true);
+      //only show loading spinner after 2.5s of loading
+      loadingTimerRef.current = setTimeout(() => {
+        setLoading(true);
+      }, 2500);
+
       setError(null);
       try {
         //check if we have stored location data with coordinates
@@ -106,10 +110,12 @@ export default function FutureForecast({ city, selectedUnit = "metric" }) {
         //use the specific error message from the API service if available
         setError(err.message || "Failed to fetch forecast data");
       } finally {
-        //ensure loading state is shown for at least 500ms to avoid flickering
-        loadingTimerRef.current = setTimeout(() => {
-          setLoading(false);
-        }, 500);
+        //clear the loading timer and set loading to false
+        if (loadingTimerRef.current) {
+          clearTimeout(loadingTimerRef.current);
+          loadingTimerRef.current = null;
+        }
+        setLoading(false);
       }
     };
 

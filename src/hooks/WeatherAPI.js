@@ -14,12 +14,15 @@ export default function useWeatherAPI(city, unit = "metric", onError = null) {
   useEffect(() => {
     if (!city) return;
 
-    // set a minimum loading time to prevent flashing
+    //clear any existing timer
     if (loadingTimerRef.current) {
       clearTimeout(loadingTimerRef.current);
     }
 
-    setIsLoading(true);
+    //only show loading spinner after 2.5s of loading
+    loadingTimerRef.current = setTimeout(() => {
+      setIsLoading(true);
+    }, 2500);
 
     const fetchWeatherData = async () => {
       setError(null);
@@ -70,10 +73,12 @@ export default function useWeatherAPI(city, unit = "metric", onError = null) {
           onError(errorMsg);
         }
       } finally {
-        //ensure loading state is shown for at least 500ms to avoid flickering
-        loadingTimerRef.current = setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
+        //clear the loading timer and set loading to false
+        if (loadingTimerRef.current) {
+          clearTimeout(loadingTimerRef.current);
+          loadingTimerRef.current = null;
+        }
+        setIsLoading(false);
       }
     };
 
