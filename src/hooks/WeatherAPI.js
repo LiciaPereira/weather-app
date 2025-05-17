@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getCurrentWeather } from "../services/weatherService";
 
-export default function useWeatherAPI(city, unit = "metric") {
+export default function useWeatherAPI(city, unit = "metric", onError = null) {
   const [temperature, setTemperature] = useState("");
   const [weathericon, setWeathericon] = useState("");
   const [humidity, setHumidity] = useState("");
@@ -10,41 +10,82 @@ export default function useWeatherAPI(city, unit = "metric") {
   const [weatherCondition, setWeatherCondition] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const loadingTimerRef = useRef(null);
   useEffect(() => {
     if (!city) return;
 
+    // set a minimum loading time to prevent flashing
+    if (loadingTimerRef.current) {
+      clearTimeout(loadingTimerRef.current);
+    }
+
+    setIsLoading(true);
+
     const fetchWeatherData = async () => {
-      setIsLoading(true);
       setError(null);
 
       try {
-        const result = await getCurrentWeather(city, unit);
+        // check if we have stored location data with coordinates
+        const storedLocationData = localStorage.getItem("lastSelectedLocation");
+        let result;
+
+        if (storedLocationData) {
+          const locationData = JSON.parse(storedLocationData);
+
+          // only use the stored coordinates if they match the current city name
+          // This prevents using outdated coordinates for a new search
+          if (locationData.displayName === city) {
+            result = await getCurrentWeather(
+              city,
+              unit,
+              locationData.lat,
+              locationData.lon
+            );
+          } else {
+            result = await getCurrentWeather(city, unit);
+          }
+        } else {
+          result = await getCurrentWeather(city, unit);
+        }
+
         setTemperature(parseInt(result.main.temp));
         setWeathericon(
           `http://openweathermap.org/img/wn/${result.weather[0].icon}@2x.png`
         );
         setFeelsLike(parseInt(result.main.feels_like));
         setHumidity(result.main.humidity);
-        setWindSpeed(result.wind.speed); // Get both the main condition and description for more accurate background matching
+        setWindSpeed(result.wind.speed);
         setWeatherCondition(result.weather[0].main.toLowerCase());
       } catch (error) {
         console.error("Weather API Error:", error);
-        setError("Failed to fetch weather data. Please try again.");
-        // Reset the weather data
-        setTemperature("");
-        setWeathericon("");
-        setFeelsLike("");
-        setHumidity("");
-        setWindSpeed("");
-        setWeatherCondition("");
+
+        //get the error message
+        const errorMsg =
+          error.message || "Failed to fetch weather data. Please try again.";
+
+        //set the error in the hook's state
+        setError(errorMsg);
+        //if an error handler was provided, call it
+        if (onError) {
+          onError(errorMsg);
+        }
       } finally {
-        setIsLoading(false);
+        //ensure loading state is shown for at least 500ms to avoid flickering
+        loadingTimerRef.current = setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
       }
     };
 
     fetchWeatherData();
-  }, [city, unit]);
+
+    //cleanup timeout on unmount or when dependencies change
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    };
+  }, [city, unit, onError]);
 
   return {
     temperature,
